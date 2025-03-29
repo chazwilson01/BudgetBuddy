@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useUser } from '../contexts/Context';
 import "./BudgetProgress.css"
 
+
 const BudgetProgressBars = () => {
-  const { budget, transactions } = useUser();
-  
-  const categorizedSpending = transactions.categorizedSpending;
-  
+
+   const {budget, transactions} = useUser() 
+
+   const categorizedSpending = transactions.categorizedSpending
   // Define budget categories with their limits
   const [budgetCategories, setBudgetCategories] = useState([
     { id: "rent", name: "Rent", budget: 1500, spent: 0, icon: "🏠" },
@@ -74,17 +75,22 @@ const BudgetProgressBars = () => {
   };
 
   return (
-    <div className="w-full max-w-lg p-5 bg-white rounded-lg shadow-lg fade-in max-h-lg border border-blue-100">
+    <div 
+    
+    className="w-full max-w-lg p-5 bg-white rounded-lg shadow-lg fade-in"
+    
+    >
+        
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-bold text-blue-800">Monthly Budget Progress</h2>
-        <div className="text-sm text-blue-600">
+        <h2 className="text-lg font-bold">Monthly Budget Progress</h2>
+        <div className="text-sm text-gray-600">
           <span className="font-medium">{daysRemaining} days remaining</span> • {Math.round(monthPercentElapsed)}% complete
         </div>
       </div>
       
       <div className="space-y-4">
         {budgetCategories.map((category, index) => {
-          const percentSpent = Math.round((category.spent / category.budget) * 100) || 0;
+          const percentSpent = Math.round((category.spent / category.budget) * 100);
           const progressBarColor = getProgressColor(percentSpent, monthPercentElapsed);
           
           return (
@@ -92,17 +98,17 @@ const BudgetProgressBars = () => {
               <div className="flex justify-between items-center">
                 <div className="flex items-center space-x-2">
                   <span className="text-lg">{category.icon}</span>
-                  <span className="font-medium text-blue-900">{category.name}</span>
+                  <span className="font-medium">{category.name}</span>
                 </div>
                 <div className="text-right">
-                  <div className="font-medium text-blue-800">${category.spent.toFixed(2)} <span className="text-blue-500 text-sm">of ${category.budget}</span></div>
-                  <div className={`text-xs ${percentSpent > 100 ? 'text-blue-800 font-medium' : 'text-blue-500'}`}>
+                  <div className="font-medium">${category.spent.toFixed(2)} <span className="text-gray-500 text-sm">of ${category.budget}</span></div>
+                  <div className={`text-xs ${percentSpent > 100 ? 'text-red-600 font-medium' : 'text-gray-500'}`}>
                     {percentSpent > 100 ? `${percentSpent - 100}% over budget` : `${Math.round(100 - percentSpent)}% remaining`}
                   </div>
                 </div>
               </div>
               
-              <div className="relative h-3 bg-blue-50 rounded-full overflow-hidden">
+              <div className="relative h-3 bg-gray-200 rounded-full overflow-hidden">
                 {/* Main progress bar with smooth transition */}
                 <div 
                   className={`absolute top-0 left-0 h-full ${progressBarColor} rounded-full transition-all duration-1000 ease-in-out`}
@@ -111,7 +117,7 @@ const BudgetProgressBars = () => {
                 
                 {/* Time indicator line */}
                 <div 
-                  className="absolute top-0 h-full border-l border-blue-700"
+                  className="absolute top-0 h-full border-l border-gray-700"
                   style={{ left: `${monthPercentElapsed}%` }}
                 ></div>
               </div>
@@ -120,19 +126,19 @@ const BudgetProgressBars = () => {
         })}
       </div>
       
-      <div className="mt-4 pt-3 border-t border-blue-100">
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
+      <div className="mt-4 pt-3 border-t border-gray-200">
+        <div className="flex items-center space-x-4 text-xs">
           <div className="flex items-center">
-            <div className="w-2.5 h-2.5 rounded-full bg-blue-400 mr-1"></div>
-            <span className="text-blue-700">On track</span>
+            <div className="w-2.5 h-2.5 rounded-full bg-green-500 mr-1"></div>
+            <span>On track</span>
           </div>
           <div className="flex items-center">
-            <div className="w-2.5 h-2.5 rounded-full bg-blue-600 mr-1"></div>
-            <span className="text-blue-700">Spending too fast</span>
+            <div className="w-2.5 h-2.5 rounded-full bg-yellow-500 mr-1"></div>
+            <span>Spending too fast</span>
           </div>
           <div className="flex items-center">
-            <div className="w-2.5 h-2.5 rounded-full bg-blue-800 mr-1"></div>
-            <span className="text-blue-700">Over budget</span>
+            <div className="w-2.5 h-2.5 rounded-full bg-red-500 mr-1"></div>
+            <span>Over budget</span>
           </div>
         </div>
       </div>

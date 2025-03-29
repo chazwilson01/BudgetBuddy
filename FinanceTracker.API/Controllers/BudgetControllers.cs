@@ -22,30 +22,38 @@ public class BudgetController : ControllerBase
     }
 
     [HttpPost("create")]
-    public async Task<IActionResult> CreateBudget(BudgetDto request)
+    public async Task<IActionResult> CreateBudget([FromBody] BudgetDto request)
     {
         var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
         var budget = new Budget
         {
             userId = userId,
             Income = request.Income,
-            Rent = request.Rent,
-            Utilities = request.Utilities,
-            Groceries = request.Groceries,
-            Transportation = request.Transportation,
-            Entertainment = request.Entertainment,
-            Insurance = request.Insurance,
-            Loans = request.Loans,
-            Savings = request.Savings,
-            Other = request.Other
         };
         _context.Budget.Add(budget);
+        await _context.SaveChangesAsync();
+
+        foreach (var category in request.Categories)
+        {
+            var newCategory = new Categories
+            {
+                UserId = userId,
+                Amount = category.Amount,
+                Category = category.Category,
+                Color = category.Color
+            };
+            _context.Categories.Add(newCategory);
+        }
+
+
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+        user.HasBudget = true;
         await _context.SaveChangesAsync();
         return Ok("Budget created successfully.");
     }
 
-    [HttpPut("update")]
-    public async Task<IActionResult> UpdateBudget(BudgetDto request)
+    [HttpPost("update")]
+    public async Task<IActionResult> UpdateBudget(UpdateBudgetRequest request)
     {
         var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
         var budget = await _context.Budget.FirstOrDefaultAsync(b => b.userId == userId);
@@ -53,16 +61,53 @@ public class BudgetController : ControllerBase
         {
             return NotFound("Budget not found.");
         }
+
         budget.Income = request.Income;
-        budget.Rent = request.Rent;
-        budget.Utilities = request.Utilities;
-        budget.Groceries = request.Groceries;
-        budget.Transportation = request.Transportation;
-        budget.Entertainment = request.Entertainment;
-        budget.Insurance = request.Insurance;
-        budget.Loans = request.Loans;
-        budget.Savings = request.Savings;
-        budget.Other = request.Other;
+
+        if (request.DeletedAllocationIds != null && request.DeletedAllocationIds.Any())
+        {
+            foreach (var categoryId in request.DeletedAllocationIds)
+            {
+                var categoryToDelete = await _context.Categories
+                    .FirstOrDefaultAsync(c => c.Id == categoryId && c.UserId == userId);
+
+                if (categoryToDelete != null)
+                {
+                    _context.Categories.Remove(categoryToDelete);
+                }
+            }
+        }
+
+        foreach (var category in request.Categories)
+        {
+            if (category.Id == 0)
+            {
+                var newCategory = new Categories
+                {
+                    UserId = userId,
+                    Amount = category.Amount,
+                    Category = category.Category,
+                    Color = category.Color
+                };
+                _context.Categories.Add(newCategory);
+            }
+            else
+            {
+                var existingCategory = await _context.Categories.FirstOrDefaultAsync(c => c.Id == category.Id);
+                if (existingCategory == null)
+                {
+                    return NotFound("Category not found.");
+                }
+                existingCategory.Amount = category.Amount;
+                existingCategory.Category = category.Category;
+                existingCategory.Color = category.Color;
+            }
+        }
+
+
+
+
+
         await _context.SaveChangesAsync();
         return Ok("Budget updated successfully.");
     }
@@ -88,10 +133,44 @@ public class BudgetController : ControllerBase
         {
             return NotFound("Budget not found.");
         }
+        var income = budget.Income;
+        var categories = await _context.Categories.Where(c => c.UserId == userId).ToListAsync();
 
-        return Ok(budget);
+        var response = new 
+        {
+            Income = income,
+            Categories = categories.Select(c => new CategoryRequest
+            {
+                Id = c.Id,
+                Amount = c.Amount,
+                Category = c.Category,
+                Color = c.Color
+            }).ToList()
+        };
+        return Ok(response);
     }
 
 
 
+}
+public class CreateCategoryRequest
+{
+    public string Category { get; set; }
+    public string Color { get; set; }
+    public int Amount { get; set; }
+}
+
+public class CategoryRequest
+{
+    public int? Id { get; set; }
+    public string Category { get; set; }
+    public string Color { get; set; }
+    public int Amount { get; set; }
+}
+
+public class UpdateBudgetRequest
+{
+    public int Income { get; set; }
+    public List<CategoryRequest> Categories { get; set; }
+    public List<int> DeletedAllocationIds { get; set; }
 }

@@ -209,7 +209,7 @@ const Budget = () => {
         return(
             <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-gray-800 to-blue-900 py-6 px-4 sm:py-8 sm:px-6 lg:px-8">
 
-                <div className="w-full max-w-4xl p-4 sm:p-6 rounded-lg mx-auto animate-fadIn">
+                <div className="w-full p-4 sm:p-6 rounded-lg mx-auto animate-fadIn">
                     <BudgetPresentation/>
                 </div>
 

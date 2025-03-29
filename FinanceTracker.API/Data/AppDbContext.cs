@@ -11,6 +11,7 @@ namespace FinanceTracker.API.Data
         public DbSet<LinkedItem> LinkedItems { get; set; } = null!;
         public DbSet<User> Users { get; set; }
         public DbSet<Budget> Budget { get; set; }
+        public DbSet<Categories> Categories { get; set; }
 
     }
 }

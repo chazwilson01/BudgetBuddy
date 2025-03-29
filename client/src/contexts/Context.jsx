@@ -5,17 +5,19 @@ import axios from 'axios';
 import categorizeTransactions from "../components/functions/categorizeTransactions";
 
 const UserContext = createContext();
+const FIVE_DAYS_MS = 5 * 24 * 60 * 60 * 1000; // 5 days in milliseconds
 
 export const UserProvider = ({ children }) => {
+    
   // Use the custom hook for each state that needs persistence
-  const [userId, setUserId] = usePersistentState("userId", null);
-  const [userEmail, setUserEmail] = usePersistentState("userEmail", null);
-  const [hasBudget, setHasBudget] = usePersistentState("hasBudget", false);
-  const [plaidConnect, setPlaidConnect] = usePersistentState("plaidConnect", false);
-  const [budget, setBudget] = usePersistentState("budget", null);
-  const [transactions, setTransactions] = usePersistentState("transactions", null);
-  const [totalBudget, setTotalBudget] = usePersistentState("totalBudget", 0);
-  const [totalSpent, setTotalSpent] = usePersistentState("totalSpent", 0);
+  const [userId, setUserId] = usePersistentState("userId", null, FIVE_DAYS_MS);
+  const [userEmail, setUserEmail] = usePersistentState("userEmail", null, FIVE_DAYS_MS);
+  const [hasBudget, setHasBudget] = usePersistentState("hasBudget", false, FIVE_DAYS_MS);
+  const [plaidConnect, setPlaidConnect] = usePersistentState("plaidConnect", false, FIVE_DAYS_MS);
+  const [budget, setBudget] = usePersistentState("budget", null, FIVE_DAYS_MS);
+  const [transactions, setTransactions] = usePersistentState("transactions", null, FIVE_DAYS_MS);
+  const [totalBudget, setTotalBudget] = usePersistentState("totalBudget", 0, FIVE_DAYS_MS);
+  const [totalSpent, setTotalSpent] = usePersistentState("totalSpent", 0, FIVE_DAYS_MS);
   const [loading, setLoading] = usePersistentState("loading", true);
 
   // Effect to fetch data on component mount/reload
@@ -38,27 +40,27 @@ export const UserProvider = ({ children }) => {
       
       // Process data from the BudgetDto format
       if (response.data) {
+        
         const budgetData = response.data;
-        const income = budgetData.income || 5000;
+        console.log(budgetData)
+        const income = budgetData.income;
         
         // Convert BudgetDto to categories array format
-        const categoryData = [
-          { id: 'rent', name: 'Rent', amount: budgetData.rent, color: '#FF6384' },
-          { id: 'utilities', name: 'Utilities', amount: budgetData.utilities, color: '#36A2EB' },
-          { id: 'groceries', name: 'Groceries', amount: budgetData.groceries, color: '#FFCE56' },
-          { id: 'transportation', name: 'Transportation', amount: budgetData.transportation, color: '#4BC0C0' },
-          { id: 'entertainment', name: 'Entertainment', amount: budgetData.entertainment, color: '#9966FF' },
-          { id: 'insurance', name: 'Insurance', amount: budgetData.insurance, color: '#FF9F40' },
-          { id: 'loans', name: 'Loans', amount: budgetData.loans, color: '#C9CBCF' },
-          { id: 'savings', name: 'Savings', amount: budgetData.savings, color: '#7BC043' },
-          { id: 'other', name: 'Other', amount: budgetData.other, color: '#F37736' }
-        ];
+        const categoryData = Object.values(budgetData.categories).map(category => ({
+            id: category.id,
+            name: category.category, // Note: the property is 'category' in the response
+            color: category.color,
+            amount: category.amount
+          }));
         
+        console.log(categoryData)
         // Calculate percentage for each category
         const processedCategories = categoryData.map(cat => ({
           ...cat,
           percentage: income > 0 ? parseFloat(((cat.amount / income) * 100).toFixed(1)) : 0
         }));
+
+         console.log(processedCategories)
         
         setBudget(processedCategories);
         sessionStorage.setItem("budget", JSON.stringify(processedCategories));
@@ -69,7 +71,8 @@ export const UserProvider = ({ children }) => {
         setTotalBudget(totalBudgetAmount);
         setHasBudget(true);
       } 
-    } catch (error) {
+    }
+     catch (error) {
       console.error('Error fetching budget:', error);
       // Handle error but don't create default categories
     } 

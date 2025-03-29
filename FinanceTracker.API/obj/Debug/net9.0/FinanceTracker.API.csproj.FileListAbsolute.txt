@@ -145,3 +145,4 @@ C:\Users\chazw\FinanceTracker\FinanceTracker.API\bin\Debug\net9.0\MailKit.dll
 C:\Users\chazw\FinanceTracker\FinanceTracker.API\bin\Debug\net9.0\MimeKit.dll
 C:\Users\chazw\FinanceTracker\FinanceTracker.API\bin\Debug\net9.0\Newtonsoft.Json.dll
 C:\Users\chazw\FinanceTracker\FinanceTracker.API\bin\Debug\net9.0\Twilio.dll
+C:\Users\chazw\FinanceTracker\FinanceTracker.API\obj\Debug\net9.0\FinanceTracker.API.sourcelink.json

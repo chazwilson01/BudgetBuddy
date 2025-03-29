@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FinanceTracker.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250328215302_Notifications")]
-    partial class Notifications
+    [Migration("20250329062943_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -33,35 +33,14 @@ namespace FinanceTracker.API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Entertainment")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Groceries")
-                        .HasColumnType("integer");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("Income")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Insurance")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Loans")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Other")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Rent")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Savings")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Transportation")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Utilities")
-                        .HasColumnType("integer");
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("userId")
                         .HasColumnType("integer");
@@ -69,6 +48,33 @@ namespace FinanceTracker.API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Budget");
+                });
+
+            modelBuilder.Entity("FinanceTracker.API.Models.Categories", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Amount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("FinanceTracker.API.Models.LinkedItem", b =>

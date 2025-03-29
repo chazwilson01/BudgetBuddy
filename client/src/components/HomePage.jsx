@@ -19,6 +19,25 @@ const HomePage = () => {
         navigate("/signup");
     };
 
+    // Mock budget data for the hero mockup
+    const budgetCategories = [
+        { id: "housing", name: "Housing", budget: 1500, spent: 1200, icon: "🏠" },
+        { id: "food", name: "Food", budget: 600, spent: 530.75, icon: "🛒" },
+        { id: "transportation", name: "Transportation", budget: 300, spent: 212.48, icon: "🚗" },
+    ];
+
+    // Get current date info for the progress indicator
+    const now = new Date();
+    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const currentDay = now.getDate();
+    const daysRemaining = daysInMonth - currentDay;
+    const monthPercentElapsed = (currentDay / daysInMonth) * 100;
+
+    // Calculate total budget and spending
+    const totalBudget = 4500;
+    const totalSpent = 2240.33;
+    const percentSpent = (totalSpent / totalBudget) * 100;
+
     // Features list
     const features = [
         {
@@ -31,15 +50,15 @@ const HomePage = () => {
             title: "Spending Analytics",
             description: "Visualize your spending patterns with intuitive charts and reports"
         },
-        {
-            icon: <DollarSign className="w-6 h-6 text-blue-300" />,
-            title: "Financial Goals",
-            description: "Set savings goals and track your progress toward financial freedom"
-        },
+        // {
+        //     icon: <DollarSign className="w-6 h-6 text-blue-300" />,
+        //     title: "Financial Goals",
+        //     description: "Set savings goals and track your progress toward financial freedom"
+        // },
         {
             icon: <Shield className="w-6 h-6 text-blue-300" />,
             title: "Secure Bank Connection",
-            description: "Safely connect your accounts with bank-level security"
+            description: "Safely connect your accounts with Plaid"
         }
     ];
 
@@ -98,53 +117,93 @@ const HomePage = () => {
                             </div>
                         </div>
                         
-                        {/* Hero Image/Mockup */}
+                        {/* Hero Mockup - Styled like an actual component */}
                         <div className={`mt-10 md:mt-0 md:w-1/2 transition-all duration-1000 delay-700 ease-out ${isLoaded ? 'translate-x-0 opacity-100' : 'translate-x-24 opacity-0'}`}>
-                            <div className="bg-gray-800 rounded-xl shadow-xl overflow-hidden border border-gray-700">
-                                <div className="h-6 bg-gray-700 flex items-center px-4">
-                                    <div className="w-3 h-3 bg-red-400 rounded-full mr-2"></div>
-                                    <div className="w-3 h-3 bg-yellow-400 rounded-full mr-2"></div>
-                                    <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+                            <div className="w-full max-w-lg mx-auto p-5 bg-white rounded-lg shadow-lg border border-blue-100">
+                                <div className="flex justify-between items-center mb-4">
+                                    <h2 className="text-lg font-bold text-blue-800">Monthly Budget Overview</h2>
+                                    <div className="text-sm text-blue-600">
+                                        <span className="font-medium">{daysRemaining} days remaining</span> • {Math.round(monthPercentElapsed)}% complete
+                                    </div>
                                 </div>
-                                <div className="p-6 bg-blue-900 text-white">
-                                    <div className="flex justify-between items-center mb-4">
-                                        <h3 className="font-bold">Monthly Overview</h3>
-                                        <span className="text-sm">March 2025</span>
-                                    </div>
-                                    <div className="bg-blue-800 bg-opacity-70 rounded-lg p-4 mb-4">
-                                        <div className="flex justify-between mb-2">
-                                            <span>Total Budget</span>
-                                            <span className="font-bold">$4,500.00</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span>Spent</span>
-                                            <span className="font-bold">$2,240.33</span>
-                                        </div>
-                                        <div className="mt-2 h-2 bg-blue-700 rounded-full overflow-hidden">
-                                            <div className="bg-blue-300 h-full rounded-full" style={{ width: "50%" }}></div>
+                                
+                                {/* Total Budget Progress */}
+                                <div className="mb-6 p-4 bg-blue-50 rounded-lg">
+                                    <div className="flex justify-between mb-2">
+                                        <span className="text-blue-800 font-medium">Total Budget</span>
+                                        <div className="text-right">
+                                            <div className="font-medium text-blue-800">${totalSpent.toFixed(2)} <span className="text-blue-500 text-sm">of ${totalBudget.toFixed(2)}</span></div>
+                                            <div className="text-xs text-blue-500">{Math.round(100 - percentSpent)}% remaining</div>
                                         </div>
                                     </div>
-                                    <div className="space-y-3">
-                                        <div className="flex justify-between items-center">
-                                            <div className="flex items-center">
-                                                <div className="w-3 h-3 bg-blue-300 rounded-full mr-2"></div>
-                                                <span>Housing</span>
+                                    <div className="relative h-3 bg-blue-100 rounded-full overflow-hidden">
+                                        <div 
+                                            className="absolute top-0 left-0 h-full bg-blue-500 rounded-full transition-all duration-1000 ease-in-out"
+                                            style={{ width: `${percentSpent}%` }}
+                                        ></div>
+                                        <div 
+                                            className="absolute top-0 h-full border-l border-blue-700"
+                                            style={{ left: `${monthPercentElapsed}%` }}
+                                        ></div>
+                                    </div>
+                                </div>
+                                
+                                {/* Category Breakdown */}
+                                <div className="space-y-4">
+                                    {budgetCategories.map((category, index) => {
+                                        const percentSpent = Math.round((category.spent / category.budget) * 100);
+                                        let progressBarColor = "bg-green-500";
+                                        
+                                        if (percentSpent > 100) {
+                                            progressBarColor = "bg-red-500";
+                                        } else if (percentSpent > monthPercentElapsed + 10) {
+                                            progressBarColor = "bg-yellow-500";
+                                        }
+                                        
+                                        return (
+                                            <div key={index} className="space-y-1">
+                                                <div className="flex justify-between items-center">
+                                                    <div className="flex items-center space-x-2">
+                                                        <span className="text-lg">{category.icon}</span>
+                                                        <span className="font-medium text-blue-900">{category.name}</span>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <div className="font-medium text-blue-800">${category.spent.toFixed(2)} <span className="text-blue-500 text-sm">of ${category.budget}</span></div>
+                                                        <div className="text-xs text-blue-500">
+                                                            {Math.round(100 - percentSpent)}% remaining
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div className="relative h-3 bg-blue-50 rounded-full overflow-hidden">
+                                                    <div 
+                                                        className={`absolute top-0 left-0 h-full ${progressBarColor} rounded-full transition-all duration-1000 ease-in-out`}
+                                                        style={{ width: `${percentSpent}%` }}
+                                                    ></div>
+                                                    <div 
+                                                        className="absolute top-0 h-full border-l border-blue-700"
+                                                        style={{ left: `${monthPercentElapsed}%` }}
+                                                    ></div>
+                                                </div>
                                             </div>
-                                            <span>$1,200.00</span>
+                                        );
+                                    })}
+                                </div>
+                                
+                                {/* Legend */}
+                                <div className="mt-4 pt-3 border-t border-blue-100">
+                                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
+                                        <div className="flex items-center">
+                                            <div className="w-2.5 h-2.5 rounded-full bg-green-500 mr-1"></div>
+                                            <span className="text-blue-700">On track</span>
                                         </div>
-                                        <div className="flex justify-between items-center">
-                                            <div className="flex items-center">
-                                                <div className="w-3 h-3 bg-green-300 rounded-full mr-2"></div>
-                                                <span>Food</span>
-                                            </div>
-                                            <span>$530.75</span>
+                                        <div className="flex items-center">
+                                            <div className="w-2.5 h-2.5 rounded-full bg-yellow-500 mr-1"></div>
+                                            <span className="text-blue-700">Spending too fast</span>
                                         </div>
-                                        <div className="flex justify-between items-center">
-                                            <div className="flex items-center">
-                                                <div className="w-3 h-3 bg-yellow-300 rounded-full mr-2"></div>
-                                                <span>Transportation</span>
-                                            </div>
-                                            <span>$212.48</span>
+                                        <div className="flex items-center">
+                                            <div className="w-2.5 h-2.5 rounded-full bg-red-500 mr-1"></div>
+                                            <span className="text-blue-700">Over budget</span>
                                         </div>
                                     </div>
                                 </div>
@@ -162,7 +221,7 @@ const HomePage = () => {
                         <p className="mt-4 text-lg text-blue-300">All the tools you need to master your finances in one place.</p>
                     </div>
                     
-                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {features.map((feature, index) => (
                             <div key={index} className="p-6 bg-gray-800 rounded-xl border border-gray-700 hover:border-blue-600 transition-colors">
                                 <div className="bg-blue-900 p-2 rounded-lg inline-block mb-4">
@@ -187,14 +246,13 @@ const HomePage = () => {
                     >
                         Sign Up — It's Free
                     </button>
-                    <p className="mt-4 text-sm text-blue-300">No credit card required. Cancel anytime.</p>
                 </div>
             </div>
             
             {/* Footer */}
             <footer className="bg-gray-900 text-white py-12">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid md:grid-cols-3 gap-8">
+                    <div className="grid md:grid-cols-2 gap-8">
                         <div>
                             <div className="flex items-center mb-4">
                                 <TrendingUp className="h-6 w-6 text-blue-300" />
@@ -202,16 +260,9 @@ const HomePage = () => {
                             </div>
                             <p className="text-blue-200">Your personal finance companion for a brighter financial future.</p>
                         </div>
+                        
                         <div>
-                            <h4 className="text-lg font-semibold mb-4">Resources</h4>
-                            <ul className="space-y-2 text-blue-200">
-                                <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
-                                <li><a href="#" className="hover:text-white transition-colors">Financial Guides</a></li>
-                                <li><a href="#" className="hover:text-white transition-colors">Security</a></li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h4 className="text-lg font-semibold mb-4">Company</h4>
+                            <h4 className="text-lg font-semibold mb-4">Creator</h4>
                             <ul className="space-y-2 text-blue-200">
                                 <li><a href="#" className="hover:text-white transition-colors">About</a></li>
                                 <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>

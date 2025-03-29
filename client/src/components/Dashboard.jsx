@@ -44,7 +44,7 @@ const Dashboard = () => {
     
     useEffect(() => {
         console.log(transactions);
-        console.log(budget);
+        console.log("TYPEOF BUDGET", typeof budget);
         
         // Calculate totals if we already have data
         if (budget && transactions) {

@@ -1,3 +1,4 @@
 # Ignore appsettings.json to prevent secrets from being committed
 appsettings.json
 appsettings.Development.json
+.vs

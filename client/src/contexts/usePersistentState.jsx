@@ -1,14 +1,20 @@
-// usePersistentState.js - Custom hook for persistent state
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
-export function usePersistentState(key, initialValue) {
-  // Create state based on persisted value or initial value
+export function usePersistentState(key, initialValue, ttl = null) {
   const [state, setState] = useState(() => {
     try {
-      // Get from localStorage by key
       const item = localStorage.getItem(key);
-      // Parse stored json or return initialValue if null
-      return item ? JSON.parse(item) : initialValue;
+      if (!item) return initialValue;
+
+      const { value, expiry } = JSON.parse(item);
+
+      // If there is an expiration time and it's expired, return initialValue and clear storage
+      if (ttl && expiry && Date.now() > expiry) {
+        localStorage.removeItem(key);
+        return initialValue;
+      }
+
+      return value;
     } catch (error) {
       console.error(`Error reading localStorage key "${key}":`, error);
       return initialValue;
@@ -18,12 +24,13 @@ export function usePersistentState(key, initialValue) {
   // Update localStorage when state changes
   useEffect(() => {
     try {
-      // Convert state to JSON and save to localStorage
-      localStorage.setItem(key, JSON.stringify(state));
+      const expiry = ttl ? Date.now() + ttl : null; // Set expiry if TTL is provided
+      const storedData = JSON.stringify({ value: state, expiry });
+      localStorage.setItem(key, storedData);
     } catch (error) {
       console.error(`Error saving to localStorage key "${key}":`, error);
     }
-  }, [key, state]);
+  }, [key, state, ttl]);
 
   return [state, setState];
 }

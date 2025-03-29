@@ -13,7 +13,7 @@ import Budget from "./components/Budget";
 import Finance from "./components/Finance";
 import Settings from "./components/Settings";
 import { useUser } from "./contexts/Context";
-
+import CreateBudget from "./components/CreateBudget";
 // Protected route component
 const ProtectedRoute = ({ children }) => {
   const { userId } = useUser();
@@ -36,9 +36,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
 
-          {/* Protected routes */}
-          <Route element={<NavBar />}>
-            <Route 
+          <Route 
               path="/setup" 
               element={
                 <ProtectedRoute>
@@ -46,6 +44,18 @@ function App() {
                 </ProtectedRoute>
               } 
             />
+          
+          <Route 
+              path="/create-budget" 
+              element={
+                <ProtectedRoute>
+                  <CreateBudget />
+                </ProtectedRoute>
+              } 
+            />
+          {/* Protected routes */}
+          <Route element={<NavBar />}>
+            
             <Route 
               path="/dashboard" 
               element={
