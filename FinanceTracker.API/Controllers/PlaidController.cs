@@ -52,9 +52,10 @@ public class PlaidController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("transactions/{userId}")]
-    public async Task<IActionResult> GetTransactions(int userId)
+    [HttpGet("transactions")]
+    public async Task<IActionResult> GetTransactions()
     {
+        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
         // Get access token from your database
         var tokenEntry = await _db.LinkedItems.FirstOrDefaultAsync(x => x.UserId == userId);
 

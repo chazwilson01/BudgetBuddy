@@ -29,7 +29,7 @@ public class PlaidService
     {
 
         var publicUrl = await GetNgrokPublicUrl();
-        var webhookUrl = $"https://1ba6-98-240-154-150.ngrok-free.app/api/plaid/webhook";
+        var webhookUrl = $"https://bc70-98-240-154-150.ngrok-free.app/api/plaid/webhook";
         var request = new
         {
             client_id = _config["Plaid:ClientId"],

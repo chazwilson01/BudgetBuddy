@@ -14,6 +14,8 @@ import Finance from "./components/Finance";
 import Settings from "./components/Settings";
 import { useUser } from "./contexts/Context";
 import CreateBudget from "./components/CreateBudget";
+import { initPerformanceOptimizations } from "./utils/performance";
+
 // Protected route component
 const ProtectedRoute = ({ children }) => {
   const { userId } = useUser();
@@ -27,35 +29,68 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
+const ProtectedRoute1 = ({ children }) => {
+  const { userId } = useUser();
+  const location = useLocation();
+
+  if (userId) {
+    // Redirect to homepage if not logged in, but save the attempted location
+    return <Navigate to="/dashboard" state={{ from: location }} replace />;
+  }
+
+  return children;
+};
+
+const ProtectedRoute2 = ({ children }) => {
+  const { hasBudget, userId } = useUser();
+  const location = useLocation();
+
+  if (hasBudget && userId) {
+    return <Navigate to="/dashboard" state={{ from: location }} replace />;
+  }
+
+  return children;
+};
+
 function App() {
+  useEffect(() => {
+    // Initialize performance optimizations
+    initPerformanceOptimizations();
+  }, []);
+
   return (
-    <UserProvider>
-      <Router>
+    <Router>
+      <UserProvider>
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-
+          <Route path="/login" element={
+            <ProtectedRoute1>
+              <Login />
+            </ProtectedRoute1>
+          } />
+          <Route path="/signup" element={
+            <ProtectedRoute1>
+              <Signup />
+            </ProtectedRoute1>
+          } />
           <Route 
-              path="/setup" 
-              element={
-                <ProtectedRoute>
-                  <PlaidConnect />
-                </ProtectedRoute>
-              } 
-            />
-          
+            path="/setup" 
+            element={
+              <ProtectedRoute>
+                <PlaidConnect />
+              </ProtectedRoute>
+            } 
+          />
           <Route 
-              path="/create-budget" 
-              element={
-                <ProtectedRoute>
-                  <CreateBudget />
-                </ProtectedRoute>
-              } 
-            />
+            path="/create-budget" 
+            element={
+              <ProtectedRoute2>
+                <CreateBudget />
+              </ProtectedRoute2>
+            } 
+          />
           {/* Protected routes */}
           <Route element={<NavBar />}>
-            
             <Route 
               path="/dashboard" 
               element={
@@ -90,8 +125,8 @@ function App() {
             />
           </Route>
         </Routes>
-      </Router>
-    </UserProvider>
+      </UserProvider>
+    </Router>
   );
 }
 

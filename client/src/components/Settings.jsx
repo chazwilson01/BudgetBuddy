@@ -129,17 +129,7 @@ const Settings = () => {
                 <span>Account & Security</span>
               </button>
               
-              <button
-                onClick={() => setActiveTab("preferences")}
-                className={`flex items-center space-x-3 px-3 py-2 w-full rounded-md text-sm font-medium ${
-                  activeTab === "preferences" 
-                    ? "bg-blue-100 text-blue-800" 
-                    : "text-gray-600 hover:bg-blue-100 hover:text-blue-800"
-                }`}
-              >
-                <CreditCard size={18} />
-                <span>Preferences</span>
-              </button>
+          
               
               <button
                 onClick={() => setActiveTab("notifications")}
@@ -316,44 +306,7 @@ const Settings = () => {
               </div>
             )}
             
-            {/* Preferences Settings */}
-            {activeTab === "preferences" && (
-              <div>
-                <h3 className="text-lg font-bold text-gray-800 mb-4">Preferences</h3>
-                
-                <div className="space-y-4 flex flex-col justify-center">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Currency
-                    </label>
-                    <select
-                      value={currency}
-                      onChange={(e) => setCurrency(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      <option value="USD">USD - US Dollar</option>
-                      <option value="EUR">EUR - Euro</option>
-                      <option value="GBP">GBP - British Pound</option>
-                      <option value="CAD">CAD - Canadian Dollar</option>
-                      <option value="AUD">AUD - Australian Dollar</option>
-                      <option value="JPY">JPY - Japanese Yen</option>
-                    </select>
-                  </div>
-
-                  <div className="mt-6 flex justify-end">
-                  <button
-                    onClick={handleSaveSettings}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center"
-                  >
-                    <Save size={16} className="mr-2" />
-                    Save Changes
-                  </button>
-                </div>
-                </div>
-                
-                
-              </div>
-            )}
+            
             
             {/* Notification Settings */}
             {activeTab === "notifications" && (

@@ -155,6 +155,19 @@ public class AuthController : ControllerBase
             return NotFound("User not found");
         }
         _context.Users.Remove(user);
+
+        var budget = await _context.Budget.FirstOrDefaultAsync(b => b.userId == user.Id);
+        if (budget != null)
+        {
+            _context.Budget.Remove(budget);
+        }
+
+        var categories = await _context.Categories.Where(c => c.UserId == user.Id).ToListAsync();
+        if (categories.Count > 0)
+        {
+            _context.Categories.RemoveRange(categories);
+        }
+
         await _context.SaveChangesAsync();
         return Ok("User deleted successfully");
     }

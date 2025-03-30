@@ -23,11 +23,7 @@ const Setup = () => {
         script.src = "https://cdn.plaid.com/link/v2/stable/link-initialize.js";
         document.body.appendChild(script);
 
-        return () => {
-            // Clean up script when component unmounts
-            document.body.removeChild(script);
-        };
-    }, [plaidConnect, hasBudget]);
+    }, []);
 
     const launchPlaid = async () => {
         try {
@@ -40,7 +36,7 @@ const Setup = () => {
             }
             
             const { link_token } = await res.json();
-            
+            console.log("link_token", link_token)
             const handler = window.Plaid.create({
                 token: link_token,
                 onSuccess: async (public_token, metadata) => {

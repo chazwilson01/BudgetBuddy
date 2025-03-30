@@ -1,5 +1,8 @@
 # Budget Buddy
 
+> ⚠️ **🚧 NOTICE: I am currently working on deploying the app on Azure. Stay tuned for any updates!**  
+
+
 Budget Buddy is a personal finance tracking application designed to help users monitor their expenses and receive regular updates on their financial health.
 
 ## Features

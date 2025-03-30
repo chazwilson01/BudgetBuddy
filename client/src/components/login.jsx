@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { AtSign, Lock, Eye, EyeOff, TrendingUp } from 'lucide-react';
+import { AtSign, Lock, Eye, EyeOff } from 'lucide-react';
 import { useUser } from "../contexts/Context";
+import "./HeaderBear.css";
 
 const Login = () => {
     const [email, setEmail] = useState("");
@@ -12,7 +13,8 @@ const Login = () => {
     const navigate = useNavigate();
     const { setUserId, setUserEmail, setHasBudget, setPlaidConnect } = useUser();
 
-    const handleSubmit = async (e) => {
+    // Memoize handlers with useCallback
+    const handleSubmit = useCallback(async (e) => {
         e.preventDefault();
         setError("");
 
@@ -28,29 +30,23 @@ const Login = () => {
                 password: password
             }, { withCredentials: true });
 
-            console.log(response.data);
-            
-            
             if (response.data.message === "Login successful") {
-                console.log("TYPE OF HASBUDGET ", typeof response.data.user.hasBudget)
                 setUserEmail(response.data.user.email);
                 setUserId(response.data.user.id);
                 setHasBudget(response.data.user.hasBudget);
                 sessionStorage.setItem("userId", response.data.user.id);
                 sessionStorage.setItem("email", response.data.user.email);
                 sessionStorage.setItem("hasBudget", response.data.user.hasBudget);
+                
                 try {
                     const check = await axios.get("https://localhost:5252/api/Plaid/check", { withCredentials: true });
-                    console.log(check.data);
-
-                    setPlaidConnect(check.data.plaidLinked)
-                    sessionStorage.setItem("plaidConnect", check.data.plaidLinked)
-
+                    setPlaidConnect(check.data.plaidLinked);
+                    sessionStorage.setItem("plaidConnect", check.data.plaidLinked);
 
                     if (check.data.plaidLinked === true && response.data.user.hasBudget) {
                         navigate("/dashboard");
                     } else {
-                        navigate("/setup")
+                        navigate("/setup");
                     }
                 } catch (checkError) {
                     console.error("Error checking Plaid status:", checkError);
@@ -61,18 +57,18 @@ const Login = () => {
             console.error("Error logging in:", error);
             setError(error.response?.data?.message || "Login failed. Please check your credentials.");
         }
-    };
+    }, [email, password, navigate, setUserId, setUserEmail, setHasBudget, setPlaidConnect]);
 
-    const togglePasswordVisibility = () => {
-        setShowPassword(!showPassword);
-    };
+    const togglePasswordVisibility = useCallback(() => {
+        setShowPassword(prev => !prev);
+    }, []);
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-gray-800 to-blue-900 w-screen">
             {/* Navigation */}
             <div className="absolute top-0 left-0 w-full p-6">
                 <div onClick={() => navigate("/")} className="flex items-center cursor-pointer w-fit">
-                    <TrendingUp className="h-6 w-6 text-blue-300" />
+                    <div className="header-bear"></div>
                     <span className="ml-2 text-xl font-bold text-white">BudgetBuddy</span>
                 </div>
             </div>
@@ -99,17 +95,18 @@ const Login = () => {
                                 <AtSign className="h-5 w-5 text-blue-400" />
                             </div>
                             <input
-                                id="email"
                                 type="email"
+                                id="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full pl-10 p-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400"
-                                placeholder="you@example.com"
+                                className="w-full pl-10 pr-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400"
+                                placeholder="Enter your email"
+                                autoComplete="email"
                                 required
                             />
                         </div>
                     </div>
-                    
+
                     <div>
                         <label htmlFor="password" className="block text-sm font-medium text-blue-200 mb-2">
                             Password
@@ -119,19 +116,19 @@ const Login = () => {
                                 <Lock className="h-5 w-5 text-blue-400" />
                             </div>
                             <input
-                                id="password"
                                 type={showPassword ? "text" : "password"}
+                                id="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="w-full pl-10 pr-10 p-3 bg-gray-700 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400"
+                                className="w-full pl-10 pr-10 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400"
                                 placeholder="Enter your password"
+                                autoComplete="current-password"
                                 required
                             />
                             <button
                                 type="button"
                                 onClick={togglePasswordVisibility}
-                                className="absolute inset-y-0 right-0 pr-3 flex items-center focus:outline-none"
-                                aria-label={showPassword ? "Hide password" : "Show password"}
+                                className="absolute inset-y-0 right-0 pr-3 flex items-center"
                             >
                                 {showPassword ? (
                                     <EyeOff className="h-5 w-5 text-blue-400" />
@@ -141,40 +138,24 @@ const Login = () => {
                             </button>
                         </div>
                     </div>
-                    
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center">
-                            <input
-                                id="remember-me"
-                                type="checkbox"
-                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-700 rounded bg-gray-700"
-                            />
-                            <label htmlFor="remember-me" className="ml-2 block text-sm text-blue-200">
-                                Remember me
-                            </label>
-                        </div>
-                        
-                        <div className="text-sm">
-                            <a href="#" className="font-medium text-blue-400 hover:text-blue-300">
-                                Forgot password?
-                            </a>
-                        </div>
-                    </div>
-                    
+
                     <button
                         type="submit"
-                        className="w-full py-3 px-4 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
+                        className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200"
                     >
                         Sign In
                     </button>
                 </form>
-                
+
                 <div className="text-center">
-                    <p className="mt-2 text-sm text-blue-200">
-                        Don't have an account?{' '}
-                        <a href="/signup" className="font-medium text-blue-400 hover:text-blue-300">
+                    <p className="text-blue-300">
+                        Don't have an account?{" "}
+                        <button
+                            onClick={() => navigate("/signup")}
+                            className="text-blue-400 hover:text-blue-300 font-medium"
+                        >
                             Sign up
-                        </a>
+                        </button>
                     </p>
                 </div>
             </div>

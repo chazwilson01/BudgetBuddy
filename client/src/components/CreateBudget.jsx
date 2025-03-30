@@ -6,18 +6,21 @@ import axios from "axios";
 
 const CreateBudget = () => {
     const navigate = useNavigate();
-    const { userId, setHasBudget } = useUser();
+    const { userId, setHasBudget, setBudget, fetchBudget } = useUser();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
     
+    // Predefined category options
+    const categoryOptions = ['Select an option', 'Rent', 'Utilities', 'Food', 'Transportation', 'Recreation', 'Insurance', 'Loans', 'Savings', 'Other'];
+    
     // Budget categories with initial values
     const [categories, setCategories] = useState([
-        { id: 1, name: "Housing", amount: "", color: "#4f46e5" },
-        { id: 2, name: "Food", amount: "", color: "#0ea5e9" },
-        { id: 3, name: "Transportation", amount: "", color: "#10b981" },
-        { id: 4, name: "Utilities", amount: "", color: "#f59e0b" },
-        { id: 5, name: "Entertainment", amount: "", color: "#ef4444" },
+        { id: 1, categoryId: 1, name: "Housing", amount: "", color: "#4f46e5", categoryType: "Rent" },
+        { id: 2, categoryId: 2, name: "Food", amount: "", color: "#0ea5e9", categoryType: "Food" },
+        { id: 3, categoryId: 3, name: "Transportation", amount: "", color: "#10b981", categoryType: "Transportation" },
+        { id: 4, categoryId: 4, name: "Utilities", amount: "", color: "#f59e0b", categoryType: "Utilities" },
+        { id: 5, categoryId: 5, name: "Entertainment", amount: "", color: "#ef4444", categoryType: "Recreation" },
     ]);
     
     // Income state
@@ -27,7 +30,9 @@ const CreateBudget = () => {
     const [newCategory, setNewCategory] = useState({
         name: "",
         amount: "",
-        color: "#6366f1"
+        color: "#6366f1",
+        categoryId: 0,
+        categoryType: "Select an option"
     });
 
     // Get total budget amount
@@ -48,6 +53,18 @@ const CreateBudget = () => {
         setIncome(value);
     };
     
+    // Handle category type change
+    const handleCategoryTypeChange = (id, value) => {
+        const categoryIndex = categoryOptions.indexOf(value);
+        setCategories(categories.map(category => 
+            category.id === id ? { 
+                ...category, 
+                categoryType: value,
+                categoryId: categoryIndex // Set categoryId based on the index in options array
+            } : category
+        ));
+    };
+    
     // Add new category
     const addNewCategory = () => {
         if (newCategory.name.trim() === "") {
@@ -59,10 +76,21 @@ const CreateBudget = () => {
             setError("Amount must be greater than 0");
             return;
         }
+
+        if (newCategory.categoryType === "Select an option") {
+            setError("Please select a category type");
+            return;
+        }
         
         const nextId = Math.max(...categories.map(c => c.id)) + 1;
-        setCategories([...categories, { ...newCategory, id: nextId }]);
-        setNewCategory({ name: "", amount: "", color: "#6366f1" });
+        const categoryIndex = categoryOptions.indexOf(newCategory.categoryType);
+        
+        setCategories([...categories, { 
+            ...newCategory, 
+            id: nextId,
+            categoryId: categoryIndex // Set categoryId based on the index in options array
+        }]);
+        setNewCategory({ name: "", amount: "", color: "#6366f1", categoryId: 0, categoryType: "Select an option" });
         setError("");
     };
     
@@ -75,7 +103,7 @@ const CreateBudget = () => {
     const submitBudget = async () => {
         try {
             // Validate budget
-            if (Number(income.monthly) <= 0) {
+            if (Number(income) <= 0) {
                 setError("Please enter your monthly income");
                 return;
             }
@@ -85,8 +113,15 @@ const CreateBudget = () => {
                 return;
             }
             
-            if (totalBudgetAmount > Number(income.monthly)) {
+            if (totalBudgetAmount > Number(income)) {
                 setError("Your budget exceeds your income");
+                return;
+            }
+
+            // Validate all categories have a type selected
+            const hasInvalidCategory = categories.some(cat => cat.categoryType === "Select an option");
+            if (hasInvalidCategory) {
+                setError("Please select a category type for all categories");
                 return;
             }
             
@@ -97,9 +132,11 @@ const CreateBudget = () => {
             const budgetData = {
                 Income: Number(income),
                 Categories: categories.map(category => ({
+                    CategoryId: category.categoryId,
                     Category: category.name,
                     Amount: Number(category.amount),
-                    Color: category.color
+                    Color: category.color,
+                    CategoryType: category.categoryType
                 }))
             };
 
@@ -110,13 +147,18 @@ const CreateBudget = () => {
                 withCredentials: true
             });
             
+            // Fetch the updated budget data
+            await fetchBudget();
+            
             setSuccess("Budget created successfully!");
             setHasBudget(true);
             sessionStorage.setItem("hasBudget", "true");
+            sessionStorage.setItem("income", Number(income));
             
             // Redirect to dashboard after successful budget creation
             setTimeout(() => {
                 navigate("/dashboard");
+                window.location.reload(); // Reload the app after navigation
             }, 1000);
             
         } catch (error) {
@@ -211,7 +253,7 @@ const CreateBudget = () => {
                                     <div className="flex-1">
                                         <div className="text-lg font-medium">{category.name}</div>
                                     </div>
-                                    <div className="relative w-48">
+                                    <div className="relative w-48 mr-4">
                                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <span className="text-gray-400">$</span>
                                         </div>
@@ -221,13 +263,23 @@ const CreateBudget = () => {
                                             onChange={(e) => {
                                                 let sanitizedValue = e.target.value.replace(/\D/g, "");
                                                 sanitizedValue = sanitizedValue.replace(/^0+/, ""); // Remove leading zeros
-                                                // Ensures only numbers
                                                 handleCategoryChange(category.id, sanitizedValue)}}
                                             className="w-full pl-8 p-3 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                                             placeholder="0"
                                             min="0"
                                         />
                                     </div>
+                                    <select
+                                        value={category.categoryType}
+                                        onChange={(e) => handleCategoryTypeChange(category.id, e.target.value)}
+                                        className="w-48 p-3 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    >
+                                        {categoryOptions.map((option) => (
+                                            <option key={option} value={option}>
+                                                {option}
+                                            </option>
+                                        ))}
+                                    </select>
                                     <button 
                                         onClick={() => removeCategory(category.id)}
                                         className="ml-4 p-2 text-red-400 hover:text-red-300 transition duration-200"
@@ -276,6 +328,22 @@ const CreateBudget = () => {
                             </div>
                             <div className="w-48">
                                 <label className="block text-sm font-medium text-blue-200 mb-2">
+                                    Category Type
+                                </label>
+                                <select
+                                    value={newCategory.categoryType}
+                                    onChange={(e) => setNewCategory({...newCategory, categoryType: e.target.value})}
+                                    className="w-full p-3 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                >
+                                    {categoryOptions.map((option) => (
+                                        <option key={option} value={option}>
+                                            {option}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="w-48">
+                                <label className="block text-sm font-medium text-blue-200 mb-2">
                                     Color
                                 </label>
                                 <input
@@ -315,6 +383,11 @@ const CreateBudget = () => {
                                     ${remainingAmount.toFixed()}
                                 </span>
                             </div>
+                            {remainingAmount > 0 && (
+                                <div className="text-sm text-blue-300 mt-2">
+                                    Note: You have ${remainingAmount.toFixed()} unallocated. This amount will be available for flexible spending.
+                                </div>
+                            )}
                         </div>
                     </div>
 

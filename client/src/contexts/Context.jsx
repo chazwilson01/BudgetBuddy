@@ -22,7 +22,7 @@ export const UserProvider = ({ children }) => {
 
   // Effect to fetch data on component mount/reload
   useEffect(() => {
-    if (userId) {
+    if (userId && hasBudget) {
       // Fetch both budget and transactions when component mounts/reloads
       setLoading(true)
       fetchBudget();
@@ -45,12 +45,14 @@ export const UserProvider = ({ children }) => {
         console.log(budgetData)
         const income = budgetData.income;
         
+        console.log("CATEGORIES", budgetData.categories)
         // Convert BudgetDto to categories array format
         const categoryData = Object.values(budgetData.categories).map(category => ({
             id: category.id,
             name: category.category, // Note: the property is 'category' in the response
             color: category.color,
-            amount: category.amount
+            amount: category.amount,
+            categoryId: category.categoryId
           }));
         
         console.log(categoryData)
@@ -83,7 +85,7 @@ export const UserProvider = ({ children }) => {
     
     try {
       const response = await axios.get(
-        `https://localhost:5252/api/plaid/transactions/${userId}`,
+        `https://localhost:5252/api/plaid/transactions`,
         { withCredentials: true }
       );
 

@@ -15,14 +15,14 @@ function categorizeTransactions(transactions) {
                    "Television", "Internet Service Providers", "Telecommunication Services"],
       
       // Food & Groceries
-      "groceries": ["Supermarkets", "Groceries", "Food and Drink", "Grocery", "Convenience Stores"],
+      "food": ["Supermarkets", "Groceries", "Food and Drink", "Grocery", "Convenience Stores"],
       
       // Transportation
       "transportation": ["Gas", "Gas Stations", "Automotive", "Public Transportation", "Taxi", "Uber", "Lyft",
                         "Parking", "Car Service", "Airlines", "Air Travel", "Rail", "Parking Fees", "Car Rental", "Travel"],
       
       // Entertainment & Leisure
-      "entertainment": ["Entertainment", "Movies", "Music", "Recreation", "Arts", "Sports", "Games", "Amusement", 
+      "recreation": ["Entertainment", "Movies", "Music", "Recreation", "Arts", "Sports", "Games", "Amusement", 
                        "Restaurants", "Food and Drink", "Dining", "Bar", "Coffee Shop", "Fast Food", "Subscription",
                        "Streaming", "Concerts", "Events", "Theaters", "Bowling"],
       
@@ -46,9 +46,9 @@ function categorizeTransactions(transactions) {
       categorizedSpending: {
         rent: 0,
         utilities: 0,
-        groceries: 0,
+        food: 0,
         transportation: 0, 
-        entertainment: 0,
+        recreation: 0,
         insurance: 0,
         loans: 0,
         savings: 0,
@@ -57,9 +57,9 @@ function categorizeTransactions(transactions) {
       transactionsByCategory: {
         rent: [],
         utilities: [],
-        groceries: [],
+        food: [],
         transportation: [],
-        entertainment: [],
+        recreation: [],
         insurance: [],
         loans: [], 
         savings: [],
@@ -115,11 +115,11 @@ function categorizeTransactions(transactions) {
       } else if (/electric|gas|water|utility|internet|cable|phone|mobile/i.test(description)) {
         matchedCategory = 'utilities';
       } else if (/grocery|supermarket|food|trader|whole foods|safeway|kroger|publix|walmart|target/i.test(description)) {
-        matchedCategory = 'groceries';
+        matchedCategory = 'food';
       } else if (/uber|lyft|taxi|gas|shell|exxon|chevron|bp|car service|car repair|auto|transit/i.test(description)) {
         matchedCategory = 'transportation';
       } else if (/restaurant|dining|grubhub|doordash|ubereats|starbucks|cafe|coffee|movie|theater|entertainment|netflix|spotify|hulu|disney/i.test(description)) {
-        matchedCategory = 'entertainment';
+        matchedCategory = 'recreation';
       } else if (/insurance|geico|state farm|progressive|allstate|anthem|cigna|aetna/i.test(description)) {
         matchedCategory = 'insurance';
       } else if (/loan|lending|credit card payment|mortgage payment|student loan|auto loan/i.test(description)) {

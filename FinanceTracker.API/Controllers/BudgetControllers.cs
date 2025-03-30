@@ -38,6 +38,7 @@ public class BudgetController : ControllerBase
             var newCategory = new Categories
             {
                 UserId = userId,
+                CategoryId = category.CategoryId,
                 Amount = category.Amount,
                 Category = category.Category,
                 Color = category.Color
@@ -80,11 +81,12 @@ public class BudgetController : ControllerBase
 
         foreach (var category in request.Categories)
         {
-            if (category.Id == 0)
+            if (category.Id < 0)
             {
                 var newCategory = new Categories
                 {
                     UserId = userId,
+                    CategoryId = category.CategoryId,
                     Amount = category.Amount,
                     Category = category.Category,
                     Color = category.Color
@@ -101,6 +103,7 @@ public class BudgetController : ControllerBase
                 existingCategory.Amount = category.Amount;
                 existingCategory.Category = category.Category;
                 existingCategory.Color = category.Color;
+                existingCategory.CategoryId = category.CategoryId;
             }
         }
 
@@ -142,6 +145,7 @@ public class BudgetController : ControllerBase
             Categories = categories.Select(c => new CategoryRequest
             {
                 Id = c.Id,
+                CategoryId = c.CategoryId,
                 Amount = c.Amount,
                 Category = c.Category,
                 Color = c.Color
@@ -156,13 +160,15 @@ public class BudgetController : ControllerBase
 public class CreateCategoryRequest
 {
     public string Category { get; set; }
+    public int CategoryId { get; set; }
     public string Color { get; set; }
     public int Amount { get; set; }
 }
 
 public class CategoryRequest
 {
-    public int? Id { get; set; }
+    public long? Id { get; set; }
+    public int CategoryId { get; set; }
     public string Category { get; set; }
     public string Color { get; set; }
     public int Amount { get; set; }
