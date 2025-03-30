@@ -17,7 +17,7 @@ Budget Buddy is a personal finance tracking application designed to help users m
 
 ### Backend
 
-- C# .NET Core 7.0
+- C# .NET Core 9.0
 - Entity Framework Core
 - PostgreSQL Database
 - RESTful API Architecture
